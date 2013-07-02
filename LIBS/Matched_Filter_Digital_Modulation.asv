@@ -1,0 +1,30 @@
+addpath('../LIBS');
+b = [1 0 1 1 1 0 1 0 1];
+n = length(b);
+
+modulation_type = 1 %ASK
+Frequency1 = 1;
+Frequency2 = 2;
+Num_Muestras = 30;
+Umbral = 0.5; %Use 0.5 for ASK and FSK; 0.0 for PSK;
+
+[modulated_signal time singal0 signal1] = libDigitalModulation(b, modulation_type, Frequency1, Frequency1, Num_Muestras);
+[result pcm time] = libPCM(bitstream, 1, 1/Frequency1, n_of_sample_b, Vmax, Vmin, verbose)
+figure(1);
+plot(time, modulated_signal);
+title('Modulated Signal');
+
+signal_noisy = libNoise_and_Attenuation(modulated_signal, 20, 1);
+figure(2);
+plot(time, signal_noisy);
+title('Modulated Signal');
+
+%DETECTION
+A=[];
+for i=1:n
+    if sum(signal1.*signal_noisy(1+Num_Muestras*(i-1):Num_Muestras*i))>0.5
+        A=[A 1];
+    else
+        A=[A 0];
+    end
+end
